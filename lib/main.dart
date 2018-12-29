@@ -27,6 +27,30 @@ class MyApp extends StatelessWidget {
 class RandomWordsState extends State<RandomWords> {
   final List<WordPair> _wordPairList = <WordPair>[];
   final TextStyle _biggerFont = const TextStyle(fontSize: 18.0);
+  final Set<WordPair> _favouritedWordPairs = new Set<WordPair>();
+
+  Widget _buildRow(WordPair wordPair) {
+    final isFavourited = _favouritedWordPairs.contains(wordPair);
+    final icon = isFavourited ? Icons.favorite : Icons.favorite_border;
+    final color = isFavourited ? Colors.red : null;
+    final GestureTapCallback onTapCallback = () {
+      setState(() { // To refresh the UI
+        if (isFavourited) {
+          _favouritedWordPairs.remove(wordPair);
+        } else { 
+          _favouritedWordPairs.add(wordPair); 
+        }
+      });
+    };
+
+    return new ListTile(
+      title: new Text(
+        wordPair.asPascalCase,
+        style: _biggerFont),
+      trailing: new Icon(icon, color:color),
+      onTap: onTapCallback,
+    );
+  }
 
   Widget _buildSuggestions() {
     IndexedWidgetBuilder itemBuilder = (BuildContext context, int index) {
@@ -38,12 +62,9 @@ class RandomWordsState extends State<RandomWords> {
         _wordPairList.addAll(generateWordPairs().take(10));
       }
 
-      return new ListTile(
-        title: new Text(
-          _wordPairList[i].asPascalCase,
-          style: _biggerFont),
-      );
+      return _buildRow(_wordPairList[i]);
     };
+
     return new ListView.builder(
       padding: const EdgeInsets.all(8.0),
       itemBuilder: itemBuilder,
