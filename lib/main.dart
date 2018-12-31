@@ -30,16 +30,12 @@ class RandomWordsState extends State<RandomWords> {
   final Set<WordPair> _favouritedWordPairs = new Set<WordPair>();
 
   Widget _buildRow(WordPair wordPair) {
-    final isFavourited = _favouritedWordPairs.contains(wordPair);
+    final isFavourited = FavouriteWordPairsRepository.getRepository().contains(wordPair);
     final icon = isFavourited ? Icons.favorite : Icons.favorite_border;
     final color = isFavourited ? Colors.red : null;
     final GestureTapCallback onTapCallback = () {
       setState(() { // To refresh the UI
-        if (isFavourited) {
-          _favouritedWordPairs.remove(wordPair);
-        } else { 
-          _favouritedWordPairs.add(wordPair); 
-        }
+        FavouriteWordPairsRepository.getRepository().toggleFavourite(wordPair);
       });
     };
 
@@ -80,4 +76,36 @@ class RandomWordsState extends State<RandomWords> {
 class RandomWords extends StatefulWidget {
   @override
   RandomWordsState createState() => new RandomWordsState();
+}
+
+
+class FavouriteWordPairsRepository {
+  static final FavouriteWordPairsRepository _repo = new FavouriteWordPairsRepository();
+  static FavouriteWordPairsRepository getRepository() {
+    return _repo;
+  }
+
+  final Set<WordPair> _wordPairs = new Set<WordPair>();
+  void add (WordPair wordPair) {
+    _wordPairs.add(wordPair);
+  }
+  void remove (WordPair wordPair) {
+    _wordPairs.remove(wordPair);
+  }
+  bool contains (WordPair wordPair) {
+    return _wordPairs.contains(wordPair);
+  }
+  void toggleFavourite (WordPair wordPair) {
+    if (this.contains(wordPair)) {
+      this.remove(wordPair);
+    } else { 
+      this.add(wordPair); 
+    }
+  }
+  int count () {
+    return _wordPairs.length;
+  }
+  List<WordPair> getList() {
+    return _wordPairs.toList();
+  }
 }
